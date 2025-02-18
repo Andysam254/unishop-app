@@ -84,3 +84,18 @@ class TokenBlocklist(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     jti = db.Column(db.String(36), nullable=False, index=True)
     created_at = db.Column(db.DateTime, nullable=False)    
+
+
+class CartItem(db.Model):
+    __tablename__ = 'cart_items'
+
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)  # Change 'products' to 'product'
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    quantity = db.Column(db.Integer, default=1)
+    
+    product = db.relationship('Product', backref='cart_items')
+    user = db.relationship('User', backref='cart_items')
+
+    def __repr__(self):
+        return f"<CartItem {self.id} - Product ID {self.product_id} - Quantity {self.quantity}>"
