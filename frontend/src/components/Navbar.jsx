@@ -22,38 +22,38 @@ import {
 
 export default function Navbar() {
   return (
-    <nav className="bg-white border-b border-gray-200 shadow">
+    <nav className="bg-gradient-to-r from-blue-600 to-purple-600 border-b border-gray-200 shadow-lg">
       <div className="max-w-screen-xl mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-20">
           {/* Left: App Name */}
           <div className="flex-shrink-0">
             <Link to="/" className="flex items-center">
               {/* Replace with your logo if needed */}
-              <FontAwesomeIcon icon={faUser} className="text-blue-500 text-2xl" />
-              <span className="ml-2 text-xl font-bold text-gray-800">Unishop</span>
+              <FontAwesomeIcon icon={faUser} className="text-white text-2xl" />
+              <span className="ml-2 text-xl font-bold text-white">Unishop</span>
             </Link>
           </div>
           {/* Center: Search Bar */}
-          <div className="flex-1 mx-4">
+          <div className="flex-1 mx-8">
             <div className="relative">
               <input
                 type="text"
                 placeholder="Search products across categories..."
-                className="w-full border border-gray-300 rounded-full py-2 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-full py-3 pl-6 pr-16 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <FontAwesomeIcon icon={faSearch} className="text-gray-500" />
-              </div>
+              <button className="absolute inset-y-0 right-0 flex items-center px-6 bg-blue-500 text-white rounded-r-full hover:bg-blue-600 transition-colors duration-300">
+                <FontAwesomeIcon icon={faSearch} className="text-lg" />
+              </button>
             </div>
           </div>
           {/* Right: Account, Help, Cart */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-6">
             {/* Account Dropdown */}
             <div className="relative group">
               <button className="flex items-center focus:outline-none">
-                <FontAwesomeIcon icon={faUser} className="text-gray-700" />
-                <span className="ml-1">Account</span>
-                <FontAwesomeIcon icon={faChevronDown} className="ml-1 text-gray-700" />
+                <FontAwesomeIcon icon={faUser} className="text-white" />
+                <span className="ml-1 text-white">Account</span>
+                <FontAwesomeIcon icon={faChevronDown} className="ml-1 text-white" />
               </button>
               {/* Dropdown Menu */}
               <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-300 z-50">
@@ -101,9 +101,9 @@ export default function Navbar() {
             {/* Help Dropdown */}
             <div className="relative group">
               <button className="flex items-center focus:outline-none">
-                <FontAwesomeIcon icon={faQuestionCircle} className="text-gray-700" />
-                <span className="ml-1">Help</span>
-                <FontAwesomeIcon icon={faChevronDown} className="ml-1 text-gray-700" />
+                <FontAwesomeIcon icon={faQuestionCircle} className="text-white" />
+                <span className="ml-1 text-white">Help</span>
+                <FontAwesomeIcon icon={faChevronDown} className="ml-1 text-white" />
               </button>
               {/* Dropdown Menu */}
               <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-300 z-50">
@@ -176,8 +176,8 @@ export default function Navbar() {
             </div>
             {/* Cart */}
             <Link to="/cart" className="flex items-center">
-              <FontAwesomeIcon icon={faShoppingCart} className="text-gray-700" />
-              <span className="ml-1">Cart</span>
+              <FontAwesomeIcon icon={faShoppingCart} className="text-white" />
+              <span className="ml-1 text-white">Cart</span>
             </Link>
           </div>
         </div>

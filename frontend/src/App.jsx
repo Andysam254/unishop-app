@@ -1,31 +1,37 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import NoPage from "./pages/NoPage";
 import Profile from './pages/Profile';
-import Register from './pages/Register';
+import SignIn from './pages/SignIn';
+import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
+import Account from './pages/Account';
+import Orders from './pages/Orders';
+import Wishlist from './pages/Wishlist';
 
 function App() {
   return (
     <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Layout />}>
-              <Route index element={<Home />} />
-              <Route path="login" element={<Login />} />
-              <Route path="register" element={<Register />} />
-              <Route path="profile" element={<Profile />} />
-              <Route path="*" element={<NoPage />} />
-            </Route>
-          </Routes>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+        
+          <Route index element={<Home />} />
+          <Route path="login" element={<Login />} />
+          <Route path="signin" element={<SignIn />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="*" element={<NoPage />} />
+          <Route path="cart" element={<Cart />} />
+          <Route path="checkout" element={<Checkout />} />  
+          <Route path="account" element={<Account />} />
+          <Route path="orders" element={<Orders />} />
+          <Route path="wishlist" element={<Wishlist />} />
+        </Route>
+      </Routes>
     </BrowserRouter>
   );
 }
 
-// React 18 - Correct Way to Render App
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<App />);
-
-export default App;
+export default App; // <-- Make sure this is here
