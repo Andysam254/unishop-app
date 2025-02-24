@@ -1,13 +1,13 @@
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import MetaData
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token
+from flask_sqlalchemy import SQLAlchemy  # Import SQLAlchemy directly
+# 
+from extensions import db  # Import db from extensions.py
 
 
-metadata = MetaData()
-
-db = SQLAlchemy(metadata=metadata)
+# # db is imported from app.py
+# db = SQLAlchemy()
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -18,11 +18,12 @@ class User(db.Model):
     role = db.Column(db.String(50), default="customer")  # Automatically assigned
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    def __init__(self, username, email, password):
+    def __init__(self, username, email, password, role=None):
         self.username = username
         self.email = email
         self.password_hash = generate_password_hash(password)
-        self.role = self.assign_role()
+        # Assign role if explicitly provided, otherwise use default
+        self.role = role if role is not None else self.assign_role()
 
     def assign_role(self):
         """Automatically assigns the first user as admin"""
@@ -34,9 +35,6 @@ class User(db.Model):
 
     def generate_token(self):
         return create_access_token(identity=self.id)
-
-
-# Product Model
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -47,8 +45,6 @@ class Product(db.Model):
     image_url = db.Column(db.String(255), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-
-# Order Model
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
@@ -57,8 +53,6 @@ class Order(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user = db.relationship("User", backref="orders")
 
-
-# OrderItem Model
 class OrderItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey("order.id"), nullable=False)
@@ -69,8 +63,6 @@ class OrderItem(db.Model):
     order = db.relationship("Order", backref="items")
     product = db.relationship("Product", backref="order_items")
 
-
-# Analytics Model (Optional: Tracking Orders and Product Trends)
 class Analytics(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey("product.id"), nullable=False)
@@ -85,12 +77,11 @@ class TokenBlocklist(db.Model):
     jti = db.Column(db.String(36), nullable=False, index=True)
     created_at = db.Column(db.DateTime, nullable=False)    
 
-
 class CartItem(db.Model):
     __tablename__ = 'cart_items'
 
     id = db.Column(db.Integer, primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)  # Change 'products' to 'product'
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     quantity = db.Column(db.Integer, default=1)
     
@@ -99,3 +90,15 @@ class CartItem(db.Model):
 
     def __repr__(self):
         return f"<CartItem {self.id} - Product ID {self.product_id} - Quantity {self.quantity}>"
+
+class Payment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey("order.id"), nullable=False)
+    payment_id = db.Column(db.String(100), nullable=False)  # Unique payment ID from the payment gateway
+    payment_method = db.Column(db.String(50), nullable=False)  # e.g., "credit_card", "paypal"
+    amount = db.Column(db.Float, nullable=False)  # Amount paid
+    status = db.Column(db.String(50), default="pending")  # pending, completed, failed, refunded
+    payment_date = db.Column(db.DateTime, default=datetime.utcnow)
+    transaction_details = db.Column(db.JSON, nullable=True)  # Store additional payment details (e.g., gateway response)
+
+    order = db.relationship("Order", backref="payments")

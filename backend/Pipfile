@@ -4,9 +4,16 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+mako = "*"
 flask-migrate = "*"
+python-dotenv = "*"
+flask-testing = "*"
+flask = "*"
 flask-sqlalchemy = "*"
 flask-jwt-extended = "*"
+pytest = "*"
+pytest-cov = "*"
+werkzeug = "*"
 
 [dev-packages]
 
