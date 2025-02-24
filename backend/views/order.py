@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db, Order, OrderItem, CartItem, Product
 
-order_bp = Blueprint("order_bp", __name__)
+order_bp = Blueprint("order_bp", __name__, url_prefix='/order')
 
 @order_bp.route("/create", methods=["POST"])
 @jwt_required()
@@ -20,7 +20,16 @@ def create_order():
     db.session.flush()  # Get order.id before committing
     
     for item in cart_items:
-        order_item = OrderItem(order_id=order.id, product_id=item.product_id, quantity=item.quantity)
+        # Calculate subtotal for each item
+        subtotal = item.product.price * item.quantity
+        
+        # Create OrderItem with subtotal
+        order_item = OrderItem(
+            order_id=order.id,
+            product_id=item.product_id,
+            quantity=item.quantity,
+            subtotal=subtotal  # Set the subtotal
+        )
         db.session.add(order_item)
         db.session.delete(item)  # Remove item from cart after ordering
     
@@ -40,7 +49,8 @@ def order_history():
         "created_at": order.created_at,
         "items": [{
             "product": item.product.name,
-            "quantity": item.quantity
+            "quantity": item.quantity,
+            "subtotal": item.subtotal  # Include subtotal in the response
         } for item in order.items]
     } for order in orders])
 
