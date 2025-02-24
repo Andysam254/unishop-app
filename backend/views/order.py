@@ -13,14 +13,23 @@ def create_order():
     if not cart_items:
         return jsonify({"message": "Cart is empty"}), 400
     
+    # Calculate the total price of the order
     total_price = sum(item.product.price * item.quantity for item in cart_items)
     
+    # Create the order
     order = Order(user_id=user_id, total_price=total_price, status="Pending")
     db.session.add(order)
     db.session.flush()  # Get order.id before committing
     
+    # Create order items and calculate subtotal for each
     for item in cart_items:
-        order_item = OrderItem(order_id=order.id, product_id=item.product_id, quantity=item.quantity)
+        subtotal = item.product.price * item.quantity  # Calculate subtotal
+        order_item = OrderItem(
+            order_id=order.id,
+            product_id=item.product_id,
+            quantity=item.quantity,
+            subtotal=subtotal  # Include subtotal
+        )
         db.session.add(order_item)
         db.session.delete(item)  # Remove item from cart after ordering
     
@@ -40,7 +49,8 @@ def order_history():
         "created_at": order.created_at,
         "items": [{
             "product": item.product.name,
-            "quantity": item.quantity
+            "quantity": item.quantity,
+            "subtotal": item.subtotal  # Include subtotal in the response
         } for item in order.items]
     } for order in orders])
 
@@ -53,7 +63,11 @@ def track_order(order_id):
     if not order:
         return jsonify({"message": "Order not found"}), 404
     
-    return jsonify({"id": order.id, "status": order.status, "estimated_delivery": order.estimated_delivery})
+    return jsonify({
+        "id": order.id,
+        "status": order.status,
+        "estimated_delivery": order.estimated_delivery
+    })
 
 @order_bp.route("/update/<int:order_id>", methods=["PUT"])
 @jwt_required()

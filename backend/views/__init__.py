@@ -6,3 +6,4 @@ from .order import *
 from .users import *
 from .analytics import * 
 from .payment import *
+from .oauth import *
