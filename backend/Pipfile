@@ -11,9 +11,9 @@ flask-testing = "*"
 flask = "*"
 flask-sqlalchemy = "*"
 flask-jwt-extended = "*"
-pytest = "*"
 pytest-cov = "*"
 werkzeug = "*"
+pytest = "*"
 
 [dev-packages]
 
