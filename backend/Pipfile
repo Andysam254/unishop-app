@@ -6,7 +6,13 @@ name = "pypi"
 [packages]
 flask-migrate = "*"
 flask-sqlalchemy = "*"
+flask-mail = "*"
+flask-cors = "*"
+requests-oauthlib = "*"
+flask = "*"
 flask-jwt-extended = "*"
+pytest = "*"
+cloudinary = "*"
 
 [dev-packages]
 
