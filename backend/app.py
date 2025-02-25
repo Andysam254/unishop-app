@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
+from flask_cors import CORS
 
 # Load environment variables
 load_dotenv()
@@ -20,6 +21,8 @@ jwt = JWTManager()
 
 def create_app():
     app = Flask(__name__)
+
+    CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
 
     # Configuration settings
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///shop.db"
@@ -36,9 +39,9 @@ def create_app():
 
     # Cloudinary configuration
     cloudinary.config(
-        cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME', 'your_cloud_name'),
-        api_key=os.getenv('CLOUDINARY_API_KEY', 'your_api_key'),
-        api_secret=os.getenv('CLOUDINARY_API_SECRET', 'your_api_secret')
+        cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME', 'dpdi0tain'),
+        api_key=os.getenv('CLOUDINARY_API_KEY', '144782431176298'),
+        api_secret=os.getenv('CLOUDINARY_API_SECRET', 'WuEOYoxDevKu0q2wSWLQbsrQwGE')
     )
 
     # Initialize extensions with the app

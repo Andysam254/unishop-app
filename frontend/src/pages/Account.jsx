@@ -1,306 +1,175 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useUser } from '../context/UserContext';
+import { useNavigate } from 'react-router-dom';
 
-/**
- * Example user data. In a real app, you would fetch this
- * from your backend or a global state management store.
- */
-const initialUser = {
-  username: 'Andy Gitau',
-  email: 'andygitau44@gmail.com',
-  phone: '+254 702******',
-  shippingAddress: 'Nyahururu, Laikipia',
-  newsletter: true,
-  role: 'user', // change to 'admin' to see Admin Panel link
-  profilePhoto: null, // could be a URL if the user already has a photo
-};
-
-export default function AccountPage() {
-  const [user, setUser] = useState(initialUser);
+export default function ProfilePage() {
+  const { user, isAuthenticated, loading, logout, updateProfile } = useUser();
   const [isEditing, setIsEditing] = useState(false);
-  const [resetMethod, setResetMethod] = useState('email'); // 'email' or 'phone'
+  const [profileData, setProfileData] = useState({
+    username: '',
+    email: '',
+    profile_image: '',
+  });
+  const [file, setFile] = useState(null);
+  const navigate = useNavigate();
 
-  // For handling file upload for profile photo
-  const handleProfilePhotoChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      // In a real app, you might upload this file to your server or cloud storage
-      const fileURL = URL.createObjectURL(file);
-      setUser((prev) => ({ ...prev, profilePhoto: fileURL }));
+  // Initialize profileData when user is loaded
+  useEffect(() => {
+    if (user) {
+      setProfileData({
+        username: user.username || '',
+        email: user.email || '',
+        profile_image: user.profile_image || '',
+      });
+    }
+  }, [user]);
+
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    if (!user || !user.id) {
+      console.error("User is not defined or does not have an ID");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const uploadResponse = await fetch('http://127.0.0.1:5000/auth/upload', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: formData,
+      });
+
+      const uploadData = await uploadResponse.json();
+      if (uploadResponse.ok) {
+        const updatedProfile = { ...profileData, profile_image: uploadData.url };
+        await updateProfile(updatedProfile);
+        setIsEditing(false);
+      } else {
+        throw new Error(uploadData.message || "File upload failed");
+      }
+    } catch (error) {
+      console.error("Profile update error:", error);
     }
   };
 
-  // For toggling newsletter subscription
-  const handleNewsletterToggle = () => {
-    setUser((prev) => ({ ...prev, newsletter: !prev.newsletter }));
-  };
+  const handleDeleteAccount = async () => {
+    if (window.confirm("Are you sure you want to delete your account?")) {
+      try {
+        const response = await fetch(`http://127.0.0.1:5000/users/${user.id}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
 
-  // For handling edits to user details
-  const handleEditUserDetails = (e) => {
-    const { name, value } = e.target;
-    setUser((prev) => ({ ...prev, [name]: value }));
-  };
-
-  // For saving changes
-  const handleSaveChanges = () => {
-    // In a real app, you would send the updated info to your server
-    setIsEditing(false);
-  };
-
-  // For resetting password (via email or phone)
-  const handleResetPassword = () => {
-    if (resetMethod === 'email') {
-      // Send email OTP logic
-      alert('Password reset link (or OTP) sent to your email.');
-    } else {
-      // Send phone OTP logic
-      alert('OTP code sent to your phone.');
+        if (response.ok) {
+          logout();
+          navigate('/signin');
+        } else {
+          throw new Error("Account deletion failed");
+        }
+      } catch (error) {
+        console.error("Account deletion error:", error);
+      }
     }
   };
+
+  if (loading) return <div>Loading...</div>;
+  if (!isAuthenticated) return <div>Not authorized</div>;
 
   return (
-    <div className="flex bg-gray-100 min-h-screen">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white p-4 shadow-sm">
-        <h2 className="text-xl font-bold mb-4">My Jumia Account</h2>
-        <nav>
-          <ul className="space-y-2">
-            <li>
-              <Link
-                to="/orders"
-                className="block w-full text-left px-3 py-2 rounded hover:bg-gray-100"
-              >
-                Orders
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/account/inbox"
-                className="block w-full text-left px-3 py-2 rounded hover:bg-gray-100"
-              >
-                Inbox
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/account/pending-reviews"
-                className="block w-full text-left px-3 py-2 rounded hover:bg-gray-100"
-              >
-                Pending reviews
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/account/vouchers"
-                className="block w-full text-left px-3 py-2 rounded hover:bg-gray-100"
-              >
-                Vouchers
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/account/wishlist"
-                className="block w-full text-left px-3 py-2 rounded hover:bg-gray-100"
-              >
-                Wishlist
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/account/followed-sellers"
-                className="block w-full text-left px-3 py-2 rounded hover:bg-gray-100"
-              >
-                Followed Sellers
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/account/payment-settings"
-                className="block w-full text-left px-3 py-2 rounded hover:bg-gray-100"
-              >
-                Payment Settings
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/account/settings"
-                className="block w-full text-left px-3 py-2 rounded hover:bg-gray-100"
-              >
-                Settings
-              </Link>
-            </li>
-            {/* Admin Panel Link (only visible if user is admin) */}
-            {user.role === 'admin' && (
-              <li className="mt-4 border-t pt-4">
-                <Link
-                  to="/admin"
-                  className="block w-full text-left px-3 py-2 bg-yellow-100 rounded hover:bg-yellow-200 font-semibold"
-                >
-                  Admin Panel
-                </Link>
-              </li>
-            )}
-          </ul>
-        </nav>
-      </aside>
+    <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">
+      <h2 className="text-3xl font-semibold text-gray-700 mb-6">Profile</h2>
 
-      {/* Main Content */}
-      <main className="flex-1 p-6">
-        <h1 className="text-2xl font-bold mb-4">Account Overview</h1>
-        <div className="bg-white p-4 rounded shadow-sm">
-          {/* Top Section: Profile Photo + Basic Info */}
-          <div className="flex items-start">
-            <div className="w-32 h-32 mr-6">
-              {/* Profile Photo */}
-              {user.profilePhoto ? (
-                <img
-                  src={user.profilePhoto}
-                  alt="Profile"
-                  className="w-full h-full object-cover rounded"
+      <div className="space-y-4">
+        <div className="flex justify-between">
+          <h3 className="text-xl font-medium text-gray-600">Username</h3>
+          <p className="text-gray-800">{user?.username}</p>
+        </div>
+
+        <div className="flex justify-between">
+          <h3 className="text-xl font-medium text-gray-600">Email</h3>
+          <p className="text-gray-800">{user?.email}</p>
+        </div>
+
+        <div className="flex justify-between">
+          <h3 className="text-xl font-medium text-gray-600">Role</h3>
+          <p className={`text-sm font-semibold ${user?.role === 'admin' ? 'text-blue-900' : 'text-orange-600'}`}>
+            {user?.role === 'admin' ? 'Admin' : 'Customer'}
+          </p>
+        </div>
+
+        <div className="flex justify-between">
+          <h3 className="text-xl font-medium text-gray-600">Profile Picture</h3>
+          <img src={user?.profile_image || 'default.jpg'} alt="Profile" className="w-20 h-20 rounded-full" />
+        </div>
+      </div>
+
+      <div className="mt-6 flex justify-end space-x-4">
+        <button
+          onClick={() => setIsEditing(!isEditing)}
+          className="px-6 py-2 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+        >
+          {isEditing ? 'Cancel' : 'Edit Profile'}
+        </button>
+        <button
+          onClick={handleDeleteAccount}
+          className="px-6 py-2 bg-red-600 text-white font-medium rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+        >
+          Delete Account
+        </button>
+      </div>
+
+      {isEditing && (
+        <div className="mt-6">
+          <form onSubmit={handleUpdateProfile}>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Username</label>
+                <input
+                  type="text"
+                  value={profileData.username}
+                  onChange={(e) => setProfileData({ ...profileData, username: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500 rounded">
-                  No Photo
-                </div>
-              )}
-              {/* Upload Button */}
-              <div className="mt-2">
-                <label className="cursor-pointer text-blue-600 hover:underline">
-                  <span>Update Photo</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleProfilePhotoChange}
-                    className="hidden"
-                  />
-                </label>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Email</label>
+                <input
+                  type="email"
+                  value={profileData.email}
+                  onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Profile Picture</label>
+                <input
+                  type="file"
+                  onChange={handleFileChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                />
               </div>
             </div>
-
-            {/* User Details */}
-            <div className="flex-1">
-              {!isEditing ? (
-                <div>
-                  <p className="text-lg font-semibold">{user.username}</p>
-                  <p className="text-gray-600">{user.email}</p>
-                  <p className="text-gray-600">{user.phone}</p>
-                  <p className="text-gray-600">{user.shippingAddress}</p>
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                  >
-                    Edit Profile
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <input
-                    type="text"
-                    name="username"
-                    value={user.username}
-                    onChange={handleEditUserDetails}
-                    className="border p-2 rounded w-full"
-                    placeholder="Username"
-                  />
-                  <input
-                    type="email"
-                    name="email"
-                    value={user.email}
-                    onChange={handleEditUserDetails}
-                    className="border p-2 rounded w-full"
-                    placeholder="Email"
-                  />
-                  <input
-                    type="text"
-                    name="phone"
-                    value={user.phone}
-                    onChange={handleEditUserDetails}
-                    className="border p-2 rounded w-full"
-                    placeholder="Phone"
-                  />
-                  <input
-                    type="text"
-                    name="shippingAddress"
-                    value={user.shippingAddress}
-                    onChange={handleEditUserDetails}
-                    className="border p-2 rounded w-full"
-                    placeholder="Shipping Address"
-                  />
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={handleSaveChanges}
-                      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                    >
-                      Save
-                    </button>
-                    <button
-                      onClick={() => setIsEditing(false)}
-                      className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              )}
+            <div className="mt-4">
+              <button
+                type="submit"
+                className="px-6 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+              >
+                Save Changes
+              </button>
             </div>
-          </div>
-
-          {/* Newsletter / Preferences */}
-          <div className="mt-6">
-            <h3 className="text-lg font-semibold mb-2">Newsletter Preferences</h3>
-            <p className="text-sm text-gray-600 mb-2">
-              Manage your email communications to stay updated with the latest news and offers.
-            </p>
-            <div className="flex items-center">
-              <label className="mr-2">Receive Newsletter:</label>
-              <input
-                type="checkbox"
-                checked={user.newsletter}
-                onChange={handleNewsletterToggle}
-                className="form-checkbox h-5 w-5 text-blue-600"
-              />
-            </div>
-          </div>
+          </form>
         </div>
-
-        {/* Password Reset Section */}
-        <div className="bg-white p-4 mt-4 rounded shadow-sm">
-          <h3 className="text-lg font-semibold mb-2">Reset Password</h3>
-          <p className="text-sm text-gray-600 mb-2">
-            Choose how you’d like to reset your password:
-          </p>
-          <div className="flex items-center mb-4 space-x-4">
-            <label className="flex items-center">
-              <input
-                type="radio"
-                name="resetMethod"
-                value="email"
-                checked={resetMethod === 'email'}
-                onChange={(e) => setResetMethod(e.target.value)}
-                className="mr-2"
-              />
-              Email OTP
-            </label>
-            <label className="flex items-center">
-              <input
-                type="radio"
-                name="resetMethod"
-                value="phone"
-                checked={resetMethod === 'phone'}
-                onChange={(e) => setResetMethod(e.target.value)}
-                className="mr-2"
-              />
-              Phone OTP
-            </label>
-          </div>
-          <button
-            onClick={handleResetPassword}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Send Reset Link / OTP
-          </button>
-        </div>
-      </main>
+      )}
     </div>
   );
 }

@@ -8,7 +8,7 @@ import cloudinary.uploader
 oauth_bp = Blueprint('oauth_bp', __name__, url_prefix='/auth')
 
 # Google OAuth2 configuration
-GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', 'your_google_client_id')
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', '587185143160-oc5gioqh3cr6nbntie6nv25tfg0ki2nt.apps.googleusercontent.com')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', 'your_google_client_secret')
 GOOGLE_REDIRECT_URI = 'http://localhost:5000/auth/google/callback'
 GOOGLE_AUTHORIZATION_BASE_URL = "https://accounts.google.com/o/oauth2/v2/auth"
@@ -16,8 +16,8 @@ GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
 GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo"
 
 # GitHub OAuth2 configuration
-GITHUB_CLIENT_ID = os.getenv('GITHUB_CLIENT_ID', 'your_github_client_id')
-GITHUB_CLIENT_SECRET = os.getenv('GITHUB_CLIENT_SECRET', 'your_github_client_secret')
+GITHUB_CLIENT_ID = os.getenv('GITHUB_CLIENT_ID', 'Ov23ligZE09EINW22bKj')
+GITHUB_CLIENT_SECRET = os.getenv('GITHUB_CLIENT_SECRET', '4a60510e505750959f44e73c65dd2141f512d89c')
 GITHUB_REDIRECT_URI = 'http://localhost:5000/auth/github/callback'
 GITHUB_AUTHORIZATION_BASE_URL = "https://github.com/login/oauth/authorize"
 GITHUB_TOKEN_URL = "https://github.com/login/oauth/access_token"

@@ -1,97 +1,124 @@
-import React, { useContext, useState } from 'react';
-import { Link } from 'react-router-dom';
-//import { UserContext } from '../context/UserContext';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { FaUser, FaGoogle, FaGithub } from "react-icons/fa";
+import { useUser } from '../context/UserContext'; // Import the useUser hook
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-export default function Login() 
-{
-
-  const {login} = useContext(UserContext)
-
-  
+export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { login } = useUser(); // Use the login function from UserContext
+  const navigate = useNavigate();
 
-  // ====> To Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault(); 
+  // Handle form login
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await login(email, password); // Use the login function from UserContext
+      if (response) {
+        toast.success("Login successful!");
+        navigate('/'); // Redirect to home page after successful login
+      }
+    } catch (error) {
+      toast.error(error.message || "Login failed");
+    }
+  };
 
-   login(email, password)
+  // Handle Google login
+  const handleGoogleLogin = () => {
+    console.log("Google login clicked");
+    window.location.href = "http://127.0.0.1:5000/api/auth/google";
+  };
 
+  // Handle GitHub login
+  const handleGitHubLogin = () => {
+    console.log("GitHub login clicked");
+    window.location.href = "http://127.0.0.1:5000/api/auth/github";
   };
 
   return (
     <div className="flex justify-center items-center min-h-[80vh]">
       <form
         onSubmit={handleSubmit}
-        className="w-[40%] bg-white p-4 rounded-xl h-min"
+        className="w-[40%] bg-white p-6 rounded-xl shadow-lg"
       >
-        <h3 className="text-2xl my-4 font-bold font-mono">Login</h3>
+        <h3 className="text-2xl my-4 font-bold font-mono text-center">Login</h3>
 
-        <div className="relative mb-6">
-          <label className="flex items-center mb-2 text-gray-600 text-sm font-medium">
+        {/* Email Input */}
+        <div className="mb-4">
+          <label className="block text-gray-600 text-sm font-medium mb-2">
             Email
-            <svg
-              width="7"
-              height="7"
-              className="ml-1"
-              viewBox="0 0 7 7"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M3.11222 6.04545L3.20668 3.94744L1.43679 5.08594L0.894886 4.14134L2.77415 3.18182L0.894886 2.2223L1.43679 1.2777L3.20668 2.41619L3.11222 0.318182H4.19105L4.09659 2.41619L5.86648 1.2777L6.40838 2.2223L4.52912 3.18182L6.40838 4.14134L5.86648 5.08594L4.09659 3.94744L4.19105 6.04545H3.11222Z"
-                fill="#EF4444"
-              />
-            </svg>
           </label>
           <input
-            type="text"
+            type="email"
             value={email} 
             onChange={(e) => setEmail(e.target.value)} 
-            className="block w-full h-11 px-5 py-2.5 bg-white leading-7 text-base font-normal shadow-xs text-gray-900 bg-transparent border border-gray-300 rounded-full placeholder-gray-400 focus:outline-none"
+            className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
             placeholder="Enter Email"
             required
+            aria-label="Email Address"
           />
         </div>
 
-        <div className="relative mb-6">
-          <label className="flex items-center mb-2 text-gray-600 text-sm font-medium">
+        {/* Password Input */}
+        <div className="mb-4">
+          <label className="block text-gray-600 text-sm font-medium mb-2">
             Password
-            <svg
-              width="7"
-              height="7"
-              className="ml-1"
-              viewBox="0 0 7 7"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M3.11222 6.04545L3.20668 3.94744L1.43679 5.08594L0.894886 4.14134L2.77415 3.18182L0.894886 2.2223L1.43679 1.2777L3.20668 2.41619L3.11222 0.318182H4.19105L4.09659 2.41619L5.86648 1.2777L6.40838 2.2223L4.52912 3.18182L6.40838 4.14134L5.86648 5.08594L4.09659 3.94744L4.19105 6.04545H3.11222Z"
-                fill="#EF4444"
-              />
-            </svg>
           </label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)} 
-            className="block w-full h-11 px-5 py-2.5 bg-white leading-7 text-base font-normal shadow-xs text-gray-900 bg-transparent border border-gray-300 rounded-full placeholder-gray-400 focus:outline-none"
+            className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
             placeholder="Password"
             required
+            aria-label="Password"
           />
         </div>
 
+        {/* Sign in Button */}
         <button
           type="submit"
-          className="w-full h-12 bg-orange-600 hover:bg-orange-800 transition-all duration-700 rounded-full shadow-xs text-white text-base font-semibold leading-6 mb-6"
+          className="w-full h-12 bg-orange-600 hover:bg-orange-800 transition-all duration-700 rounded-lg text-white text-base font-semibold mb-4"
+          aria-label="Sign in"
         >
           Sign in
         </button>
 
-        <div>
-          Not yet registered? <Link to="/register" className='text-orange-500' >Register</Link>
+        {/* OR Divider */}
+        <div className="flex items-center my-4">
+          <div className="border-b border-gray-300 w-full"></div>
+          <span className="px-2 text-gray-500 text-sm">OR</span>
+          <div className="border-b border-gray-300 w-full"></div>
+        </div>
+
+        {/* Google Login */}
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          className="flex items-center justify-center w-full h-12 bg-white border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-100 transition-all mb-2"
+          aria-label="Sign in with Google"
+        >
+          <FaGoogle className="text-red-500 mr-2" /> Sign in with Google
+        </button>
+
+        {/* GitHub Login */}
+        <button
+          type="button"
+          onClick={handleGitHubLogin}
+          className="flex items-center justify-center w-full h-12 bg-white border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-100 transition-all"
+          aria-label="Sign in with GitHub"
+        >
+          <FaGithub className="text-black mr-2" /> Sign in with GitHub
+        </button>
+
+        {/* Register Link */}
+        <div className="text-center mt-4">
+          Not yet registered? <Link to="/register" className="text-orange-500">Register</Link>
         </div>
       </form>
+      <ToastContainer />
     </div>
   );
 }

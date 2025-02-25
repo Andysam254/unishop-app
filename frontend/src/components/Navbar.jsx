@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faUser,
@@ -18,9 +18,20 @@ import {
   faShoppingCart,
   faSearch,
   faChevronDown,
+  faSignOutAlt, // Add this icon for logout
 } from '@fortawesome/free-solid-svg-icons';
+import { useUser } from '../context/UserContext'; // Import the useUser hook
 
 export default function Navbar() {
+  const { user, isAuthenticated, logout } = useUser(); // Get user, isAuthenticated, and logout from UserContext
+  const navigate = useNavigate(); // Initialize useNavigate
+
+  // Handle logout
+  const handleLogout = () => {
+    logout(); // Call the logout function from UserContext
+    navigate('/login'); // Redirect to the login page
+  };
+
   return (
     <nav className="bg-gradient-to-r from-blue-600 to-purple-600 border-b border-gray-200 shadow-lg">
       <div className="max-w-screen-xl mx-auto px-4">
@@ -58,43 +69,68 @@ export default function Navbar() {
               {/* Dropdown Menu */}
               <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-300 z-50">
                 <ul className="py-1">
-                  <li>
-                    <Link
-                      to="/signin"
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      <FontAwesomeIcon icon={faSignInAlt} className="mr-2" />
-                      Sign In
-                    </Link>
-                  </li>
-                  <hr className="border-gray-200" />
-                  <li>
-                    <Link
-                      to="/account"
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      <FontAwesomeIcon icon={faUserCircle} className="mr-2" />
-                      My Account
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/orders"
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      <FontAwesomeIcon icon={faListAlt} className="mr-2" />
-                      Orders
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/wishlist"
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      <FontAwesomeIcon icon={faHeart} className="mr-2" />
-                      Wishlist
-                    </Link>
-                  </li>
+                  {!isAuthenticated ? (
+                    <>
+                      <li>
+                        <Link
+                          to="/signin"
+                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          <FontAwesomeIcon icon={faSignInAlt} className="mr-2" />
+                          Sign Up
+                        </Link>
+                      </li>
+                      <hr className="border-gray-200" />
+                      <li>
+                        <Link
+                          to="/login"
+                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          <FontAwesomeIcon icon={faUserCircle} className="mr-2" />
+                          login
+                        </Link>
+                      </li>
+                    </>
+                  ) : (
+                    <>
+                      <li>
+                        <Link
+                          to="/account"
+                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          <FontAwesomeIcon icon={faUserCircle} className="mr-2" />
+                          My Account
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/orders"
+                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          <FontAwesomeIcon icon={faListAlt} className="mr-2" />
+                          Orders
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/wishlist"
+                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          <FontAwesomeIcon icon={faHeart} className="mr-2" />
+                          Wishlist
+                        </Link>
+                      </li>
+                      <li>
+                        <button
+                          onClick={handleLogout} // Use the handleLogout function
+                          className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" />
+                          Logout
+                        </button>
+                      </li>
+                    </>
+                  )}
                 </ul>
               </div>
             </div>
